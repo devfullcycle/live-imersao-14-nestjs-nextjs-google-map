@@ -53,8 +53,10 @@ export class RoutesService {
     return this.prismaService.route.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} route`;
+  findOne(id: string) {
+    return this.prismaService.route.findUniqueOrThrow({
+      where: { id },
+    })
   }
 
   update(id: number, updateRouteDto: UpdateRouteDto) {

@@ -1,11 +1,12 @@
 "use client";
 
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useMap } from "../hooks/useMap";
 import type {
   DirectionsResponseData,
   FindPlaceFromTextResponseData,
 } from "@googlemaps/google-maps-services-js";
+import { socket } from "../utils/socket-io";
 
 export function NewRoutePage() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -13,6 +14,13 @@ export function NewRoutePage() {
   const [directionsResponseData, setDirectionsResponseData] = useState<
     DirectionsResponseData & { request: any }
   >();
+
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   async function searchPlaces(event: FormEvent) {
     event.preventDefault();
@@ -95,16 +103,24 @@ export function NewRoutePage() {
     for (const step of steps) {
       await sleep(2000);
       moveCar(step.start_location);
-      //posicao via websocket ---> nest
+      emitNewPoint(route.id, step.start_location);
 
       await sleep(2000);
       moveCar(step.end_location);
-      //posicao via websocket ----> nest
+      emitNewPoint(route.id, step.end_location);
     }
   }
 
   function moveCar(point: google.maps.LatLngLiteral) {
     map?.moveCar("1", {
+      lat: point.lat,
+      lng: point.lng,
+    });
+  }
+
+  function emitNewPoint(routeId: string, point: google.maps.LatLngLiteral) {
+    socket.emit("new-points", {
+      route_id: routeId,
       lat: point.lat,
       lng: point.lng,
     });
