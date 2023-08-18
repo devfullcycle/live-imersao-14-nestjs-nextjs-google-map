@@ -9,14 +9,14 @@ export class RouteSerializer implements Omit<Route, 'directions'> {
   distance: number;
   duration: number;
   directions: DirectionsResponseData & { request: any };
-  created_at: Date;
-  updated_at: Date;
+  create_at: Date;
+  update_at: Date;
 
   constructor(route: Route) {
     this.id = route.id;
     this.name = route.name;
-    this.created_at = route.created_at;
-    this.updated_at = route.updated_at;
+    this.create_at = route.create_at;
+    this.update_at = route.update_at;
     this.distance = route.distance;
     this.duration = route.duration;
     this.directions = JSON.parse(route.directions as string);
